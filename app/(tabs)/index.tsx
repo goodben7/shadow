@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar, TextInput, Image } from 'react-native';
-import { Eye, EyeOff, Send, Receipt, Smartphone, Plus, Bell, User, Lock, ArrowUpRight, ArrowDownRight, Zap, Droplets, Tv, ChevronRight, TrendingUp, AlertCircle, Shield, MessageCircle } from 'lucide-react-native';
+import { Eye, EyeOff, Send, Receipt, Smartphone, Plus, Bell, User, Lock, ArrowUpRight, ArrowDownRight, Zap, Droplets, Tv, ChevronRight, TrendingUp, AlertCircle, Shield, MessageCircle, PiggyBank, Wallet, LineChart, Sparkles, BadgeCheck, TrendingDown } from 'lucide-react-native';
 
 export default function HomeScreen() {
   const [balanceVisible, setBalanceVisible] = useState(true);
@@ -16,6 +16,15 @@ export default function HomeScreen() {
     current: 247850, // en FC
     budget: 350000, // en FC
     percentage: 70, // pourcentage du budget utilisé
+    trend: 8, // pourcentage d'évolution par rapport au mois précédent
+    saved: 20000, // montant économisé ce mois-ci
+  });
+  
+  // État pour les insights financiers
+  const [financialInsight, setFinancialInsight] = useState({
+    type: 'positive', // positive, warning, neutral
+    message: 'Vous avez économisé 20 000 FC ce mois-ci !',
+    icon: Sparkles
   });
 
   useEffect(() => {
@@ -152,8 +161,10 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Balance Card with Mini Graph */}
+        {/* Balance Card with Mini Graph - Redesigned */}
         <View style={styles.balanceCard}>
+          {/* Security Badge - Removed as requested */}
+          
           <View style={styles.balanceHeader}>
             <Text style={styles.balanceLabel}>Solde principal</Text>
             <TouchableOpacity onPress={() => setBalanceVisible(!balanceVisible)}>
@@ -164,14 +175,48 @@ export default function HomeScreen() {
               )}
             </TouchableOpacity>
           </View>
-          <Text style={styles.balanceAmount}>
-            {balanceVisible ? '247,850 FC' : '••••••• FC'}
-          </Text>
-          <Text style={styles.balanceSubtext}>
-            USD: {balanceVisible ? '$148.50' : '$•••••'}
-          </Text>
           
-          {/* Mini Graph */}
+          {/* Balance with Trend Indicator */}
+          <View style={styles.balanceRow}>
+            <Text style={styles.balanceAmount}>
+              {balanceVisible ? '247,850 FC' : '••••••• FC'}
+            </Text>
+            <View style={[styles.trendBadge, {backgroundColor: monthlySpending.trend >= 0 ? '#DCFCE7' : '#FEE2E2'}]}>
+              {monthlySpending.trend >= 0 ? (
+                <TrendingUp size={14} color="#10B981" />
+              ) : (
+                <TrendingDown size={14} color="#EF4444" />
+              )}
+              <Text style={[styles.trendText, {color: monthlySpending.trend >= 0 ? '#10B981' : '#EF4444'}]}>
+                {monthlySpending.trend}%
+              </Text>
+            </View>
+          </View>
+          
+          {/* USD Conversion with Premium Badge */}
+          <View style={styles.balanceSubtextRow}>
+            <Text style={styles.balanceSubtext}>
+              USD: {balanceVisible ? '$148.50' : '$•••••'}
+            </Text>
+            {isPremium && (
+              <View style={styles.premiumBadgeSmall}>
+                <BadgeCheck size={12} color="#F59E0B" />
+                <Text style={styles.premiumBadgeText}>Premium</Text>
+              </View>
+            )}
+          </View>
+          
+          {/* Financial Insight */}
+          <View style={[styles.insightContainer, 
+            financialInsight.type === 'positive' ? styles.insightPositive : 
+            financialInsight.type === 'warning' ? styles.insightWarning : 
+            styles.insightNeutral]}>
+            <financialInsight.icon size={16} color={financialInsight.type === 'positive' ? '#10B981' : 
+              financialInsight.type === 'warning' ? '#F59E0B' : '#6B7280'} />
+            <Text style={styles.insightText}>{financialInsight.message}</Text>
+          </View>
+          
+          {/* Mini Graph - Enhanced */}
           <View style={styles.miniGraphContainer}>
             <View style={styles.miniGraphLabels}>
               <Text style={styles.miniGraphTitle}>Dépenses du mois</Text>
@@ -180,14 +225,38 @@ export default function HomeScreen() {
               </Text>
             </View>
             <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: `${monthlySpending.percentage}%` }]} />
+              <View style={[styles.progressBarBackground]}>
+                <View style={[styles.progressBar, { 
+                  width: `${monthlySpending.percentage}%`,
+                  backgroundColor: monthlySpending.percentage < 50 ? '#10B981' : 
+                                  monthlySpending.percentage < 80 ? '#F59E0B' : '#EF4444'
+                }]} />
+              </View>
+              {/* Budget Marker */}
+              <View style={styles.budgetMarker}>
+                <Text style={styles.budgetMarkerText}>50%</Text>
+              </View>
             </View>
+            <Text style={styles.progressText}>
+              Vous avez utilisé <Text style={styles.progressTextHighlight}>{monthlySpending.percentage}%</Text> de votre budget
+            </Text>
           </View>
           
-          <TouchableOpacity style={styles.viewHistoryButton}>
-            <Text style={styles.viewHistoryText}>Voir l'historique</Text>
-            <ChevronRight size={16} color="#1E40AF" />
-          </TouchableOpacity>
+          {/* Quick Actions */}
+          <View style={styles.balanceActions}>
+            <TouchableOpacity style={styles.balanceActionButton}>
+              <PiggyBank size={18} color="#1E40AF" />
+              <Text style={styles.balanceActionText}>Épargner</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.balanceActionButton}>
+              <LineChart size={18} color="#1E40AF" />
+              <Text style={styles.balanceActionText}>Budget</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.balanceActionButton}>
+              <Wallet size={18} color="#1E40AF" />
+              <Text style={styles.balanceActionText}>Historique</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Quick Actions - Grid with 2 rows */}
@@ -402,10 +471,30 @@ const styles = StyleSheet.create({
     marginTop: -10,
     marginBottom: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.8)',
+  },
+  securityBadgeContainer: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(30, 64, 175, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  securityBadgeText: {
+    fontSize: 10,
+    color: '#1E40AF',
+    fontWeight: '600',
+    marginLeft: 4,
   },
   balanceHeader: {
     flexDirection: 'row',
@@ -416,22 +505,87 @@ const styles = StyleSheet.create({
   balanceLabel: {
     color: '#6b7280',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
   },
   balanceAmount: {
     color: '#111827',
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: '800',
     marginBottom: 4,
+    // Effet de dégradé simulé avec une ombre de texte subtile
+    textShadowColor: 'rgba(0, 0, 0, 0.05)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  trendBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  trendText: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginLeft: 2,
+  },
+  balanceSubtextRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
   balanceSubtext: {
     color: '#6b7280',
     fontSize: 14,
+    fontWeight: '500',
+  },
+  premiumBadgeSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  premiumBadgeText: {
+    fontSize: 10,
+    color: '#F59E0B',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  insightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
     marginBottom: 16,
   },
+  insightPositive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+  },
+  insightWarning: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+  },
+  insightNeutral: {
+    backgroundColor: 'rgba(107, 114, 128, 0.1)',
+  },
+  insightText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 8,
+    flex: 1,
+  },
   miniGraphContainer: {
-    marginTop: 8,
     marginBottom: 16,
+    position: 'relative',
   },
   miniGraphLabels: {
     flexDirection: 'row',
@@ -441,23 +595,74 @@ const styles = StyleSheet.create({
   miniGraphTitle: {
     fontSize: 12,
     color: '#6b7280',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   miniGraphValue: {
     fontSize: 12,
     color: '#111827',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   progressBarContainer: {
-    height: 8,
+    marginBottom: 8,
+    position: 'relative',
+  },
+  progressBarBackground: {
+    height: 10,
     backgroundColor: '#F3F4F6',
-    borderRadius: 4,
+    borderRadius: 6,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#2E8B57', // Vert émeraude
-    borderRadius: 4,
+    borderRadius: 6,
+  },
+  budgetMarker: {
+    position: 'absolute',
+    left: '50%',
+    top: -2,
+    width: 1,
+    height: 14,
+    backgroundColor: '#9CA3AF',
+  },
+  budgetMarkerText: {
+    position: 'absolute',
+    left: -8,
+    top: -18,
+    fontSize: 9,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  progressText: {
+    fontSize: 11,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  progressTextHighlight: {
+    fontWeight: '700',
+    color: '#111827',
+  },
+  balanceActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    paddingTop: 16,
+    marginTop: 8,
+  },
+  balanceActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: 'rgba(30, 64, 175, 0.1)',
+  },
+  balanceActionText: {
+    color: '#1E40AF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 4,
   },
   viewHistoryButton: {
     flexDirection: 'row',
