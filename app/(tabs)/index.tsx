@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar, TextInput, Image } from 'react-native';
-import { Eye, EyeOff, Send, Receipt, Smartphone, Plus, Bell, User, Lock, ArrowUpRight, ArrowDownRight, Zap, Droplets, Tv, ChevronRight, TrendingUp, AlertCircle } from 'lucide-react-native';
+import { Eye, EyeOff, Send, Receipt, Smartphone, Plus, Bell, User, Lock, ArrowUpRight, ArrowDownRight, Zap, Droplets, Tv, ChevronRight, TrendingUp, AlertCircle, Shield, MessageCircle } from 'lucide-react-native';
 
 export default function HomeScreen() {
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [greeting, setGreeting] = useState('');
   const [userName, setUserName] = useState('Jean-Claude');
+  const [userFullName, setUserFullName] = useState('Jean-Claude Mukendi');
+  const [notificationCount, setNotificationCount] = useState(2);
+  const [isPremium, setIsPremium] = useState(true);
+  const [isSessionSecure, setIsSessionSecure] = useState(true);
 
   // Données pour le mini-graphique (simulées)
   const [monthlySpending, setMonthlySpending] = useState({
@@ -20,6 +24,16 @@ export default function HomeScreen() {
     else if (hour < 18) setGreeting('Bon après-midi');
     else setGreeting('Bonsoir');
   }, []);
+
+  // Fonction pour obtenir les initiales de l'utilisateur pour l'avatar
+  const getUserInitials = () => {
+    return userFullName
+      .split(' ')
+      .map(name => name[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
 
   // Actions rapides personnalisées basées sur l'historique de l'utilisateur
   const quickActions = [
@@ -94,20 +108,46 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar backgroundColor="#003366" barStyle="light-content" />
       
-      {/* Header */}
+      {/* Header - Redesigned */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.greetingText}>{greeting}</Text>
-          <Text style={styles.nameText}>{userName}</Text>
-        </View>
+        <View style={styles.headerContent}>
+          {/* User Profile Section */}
+          <View style={styles.userSection}>
+            <TouchableOpacity style={styles.avatarContainer}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{getUserInitials()}</Text>
+              </View>
+              {isPremium && <View style={styles.premiumBadge} />}
+            </TouchableOpacity>
+            
+            <View style={styles.userInfo}>
+              <Text style={styles.greetingText}>{greeting}</Text>
+              <Text style={styles.nameText}>{userFullName}</Text>
+              {isSessionSecure && (
+                <View style={styles.secureSessionBadge}>
+                  <Shield size={10} color="#ffffff" />
+                  <Text style={styles.secureSessionText}>Session sécurisée</Text>
+                </View>
+              )}
+            </View>
+          </View>
 
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Bell size={24} color="#ffffff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Lock size={24} color="#ffffff" />
-          </TouchableOpacity>
+          {/* Header Actions - Removed as requested */}
+          <View style={styles.headerIcons}>
+            <TouchableOpacity style={styles.iconButton}>
+              <MessageCircle size={22} color="#ffffff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <View style={styles.notificationContainer}>
+                <Bell size={22} color="#ffffff" />
+                {notificationCount > 0 && (
+                  <View style={styles.notificationBadge}>
+                    <Text style={styles.notificationText}>{notificationCount}</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -247,9 +287,49 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
+  },
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  userSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#1E40AF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  avatarText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  premiumBadge: {
+    position: 'absolute',
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#F59E0B',
+    borderWidth: 2,
+    borderColor: '#003366',
+    bottom: 0,
+    right: 0,
+  },
+  userInfo: {
+    flex: 1,
   },
   greetingText: {
     color: '#ffffff',
@@ -262,6 +342,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 2,
   },
+  secureSessionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginTop: 4,
+    alignSelf: 'flex-start',
+  },
+  secureSessionText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
   headerIcons: {
     flexDirection: 'row',
     gap: 12,
@@ -273,6 +369,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  notificationContainer: {
+    position: 'relative',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#EF4444',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#003366',
+  },
+  notificationText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '700',
   },
   content: {
     flex: 1,
