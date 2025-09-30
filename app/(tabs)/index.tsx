@@ -46,12 +46,12 @@ export default function HomeScreen() {
 
   // Actions rapides personnalisées basées sur l'historique de l'utilisateur
   const quickActions = [
-    { id: 1, icon: Send, title: 'Envoyer à Marie', subtitle: 'Transfer rapide', color: '#1E40AF', route: 'transfer' },
-    { id: 2, icon: Receipt, title: 'Payer SNEL', subtitle: 'Facture électricité', color: '#059669', route: 'payments' },
-    { id: 3, icon: Smartphone, title: 'Recharger Airtel', subtitle: 'Crédit téléphone', color: '#7C3AED', route: 'recharge' },
-    { id: 4, icon: Tv, title: 'DSTV', subtitle: 'Abonnement TV', color: '#F59E0B', route: 'payments' },
-    { id: 5, icon: Droplets, title: 'REGIDESO', subtitle: 'Facture eau', color: '#3B82F6', route: 'payments' },
-    { id: 6, icon: Plus, title: 'Plus', subtitle: 'Autres services', color: '#6B7280', route: 'more' },
+    { id: 1, icon: Send, title: 'Envoyer à Marie', subtitle: 'Transfer rapide', color: '#1E40AF', route: 'transfer', image: null },
+    { id: 2, icon: Receipt, title: 'Payer SNEL', subtitle: 'Facture électricité', color: '#059669', route: 'payments', image: require('../../assets/images/snel.png') },
+    { id: 3, icon: Smartphone, title: 'Recharger Airtel', subtitle: 'Crédit téléphone', color: '#7C3AED', route: 'recharge', image: require('../../assets/images/airtel.jpg') },
+    { id: 4, icon: Tv, title: 'DSTV', subtitle: 'Abonnement TV', color: '#F59E0B', route: 'payments', image: require('../../assets/images/dstv.png') },
+    { id: 5, icon: Droplets, title: 'REGIDESO', subtitle: 'Facture eau', color: '#3B82F6', route: 'payments', image: require('../../assets/images/Regideso.jpg') },
+    { id: 6, icon: Plus, title: 'Plus', subtitle: 'Autres services', color: '#6B7280', route: 'more', image: null },
   ];
 
   const recentTransactions = [
@@ -265,8 +265,16 @@ export default function HomeScreen() {
           <View style={styles.quickActionsGrid}>
             {quickActions.slice(0, 3).map((action) => (
               <TouchableOpacity key={action.id} style={styles.quickActionItem}>
-                <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
-                  <action.icon size={24} color="#ffffff" />
+                <View style={[styles.quickActionIcon, { backgroundColor: action.image ? '#ffffff' : action.color }]}>
+                  {action.image ? (
+                    <Image 
+                      source={action.image} 
+                      style={styles.quickActionImage} 
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <action.icon size={24} color="#ffffff" />
+                  )}
                 </View>
                 <Text style={styles.quickActionTitle}>{action.title}</Text>
                 <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
@@ -276,8 +284,16 @@ export default function HomeScreen() {
           <View style={styles.quickActionsGrid}>
             {quickActions.slice(3, 6).map((action) => (
               <TouchableOpacity key={action.id} style={styles.quickActionItem}>
-                <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
-                  <action.icon size={24} color="#ffffff" />
+                <View style={[styles.quickActionIcon, { backgroundColor: action.image ? '#ffffff' : action.color }]}>
+                  {action.image ? (
+                    <Image 
+                      source={action.image} 
+                      style={styles.quickActionImage} 
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <action.icon size={24} color="#ffffff" />
+                  )}
                 </View>
                 <Text style={styles.quickActionTitle}>{action.title}</Text>
                 <Text style={styles.quickActionSubtitle}>{action.subtitle}</Text>
@@ -721,6 +737,11 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     fontSize: 11,
     textAlign: 'center',
+  },
+  quickActionImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 4,
   },
   transactionsContainer: {
     marginBottom: 24,
