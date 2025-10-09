@@ -14,7 +14,8 @@ export default function TransferScreen() {
     note: '',
     lastTransferAmount: '',
     recipientPhone: '',
-    recipientProvider: ''
+    recipientProvider: '',
+    useLastAmount: false // Pour les transferts rapides avec le dernier montant
   });
   
   // États pour les animations et l'expérience utilisateur
@@ -325,6 +326,7 @@ const styles = StyleSheet.create({
       setTransferSuccess(false);
       setTransferData({
         recipient: '',
+        useLastAmount: false,
         recipientType: '',
         amount: '',
         note: '',
@@ -877,10 +879,17 @@ const styles = StyleSheet.create({
             }}>Voir le reçu</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[{
+            style={{
+              flex: 1,
               backgroundColor: '#1E40AF',
-              borderColor: '#1E40AF'
-            }]}
+              borderColor: '#1E40AF',
+              borderWidth: 1,
+              borderRadius: 12,
+              paddingVertical: 16,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginHorizontal: 6
+            }}
             onPress={handleBack}
           >
             <Text style={{color: '#ffffff', fontSize: 14, fontWeight: '600'}}>Nouveau transfert</Text>
